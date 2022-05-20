@@ -7,17 +7,23 @@
 		<div
 			class="h-56 w-1/2 rounded-md shadow-md shadow-blue-800 bg-slate-300 text-black"
 		>
+			<m-select
+				v-model="teste2"
+				:options="['Batman', 'Robin', 'Pinguin']"
+				class="text-black"
+			/>
 			<div
 				v-for="propertie in inputProperties"
 				:key="propertie.title"
-				class="my-2 w-full h-auto bg-yellow-100"
+				class="my-2 w-full h-auto"
 			>
-				{{ propertie.enum || propertie.items?.enum }}
-				<multi-select
-					@change="assignValue(propertie.title, $event.target.value)"
-					:model-value="`selectedOption.${propertie.title}`"
-					:list="propertie.enum || propertie.items?.enum"
-					name="teste"
+				<m-select
+					@input="assignValue(propertie.title, $event)"
+					:canClear="false"
+					:canDeselect="false"
+					:options="propertie.enum || propertie.items?.enum"
+					class="text-black"
+					:placeholder="`Select a ${propertie.title.toLowerCase()}`"
 				/>
 			</div>
 		</div>
@@ -25,12 +31,12 @@
 </template>
 
 <script>
-	import MultiSelect from '../components/atoms/MultiSelect.vue';
+	import MSelect from '../components/atoms/MSelect.vue';
 	import { avataaars as avataaars } from '@dicebear/collection';
 
 	export default {
 		components: {
-			MultiSelect
+			MSelect
 		},
 		data() {
 			return {
@@ -40,17 +46,11 @@
 				styleType: 'avataaars',
 				svg: '',
 				name: 'andre',
-				baseUrl: `https://avatars.dicebear.com/api/avataaars/andre.svg?`
+				baseUrl: `https://avatars.dicebear.com/api/avataaars/andre.svg?`,
+				mselect: ''
 			};
 		},
 		computed: {
-			// selectedTypeQueryStrings() {
-			// 	Object.values(avataaars.schema.properties).reduce((prev, current) => {
-			// 		prev = `https://avatars.dicebear.com/api/${this.styleType}/`
-			// 		console.log(prev, current.title);
-			// 	}, {});
-			// 	return null;
-			// },
 			url() {
 				return `https://avatars.dicebear.com/api/${this.styleType}/${
 					this.name
@@ -66,7 +66,6 @@
 		},
 		methods: {
 			queryStringConstructor(option, value, position = 0 || 1) {
-				console.log(position ? `&${option}=${value}` : `${option}=${value}`);
 				return position ? `&${option}=${value}` : `${option}=${value}`;
 			},
 			normalizeKey(key) {
@@ -81,6 +80,7 @@
 				}
 			},
 			assignValue(key, value) {
+				console.log(value);
 				key = this.normalizeKey(key);
 				if (!this.baseUrl.includes(key)) {
 					let position;
@@ -89,15 +89,13 @@
 						? (position = 1)
 						: (position = 0);
 
-					console.log(key);
 					this.baseUrl = this.baseUrl.concat(
 						'',
 						`${this.queryStringConstructor(key, value, position)}`
 					);
 					this.selectedOption[key] = value;
 				} else {
-					let param = `${key}=`;
-					let oldValue = this.baseUrl.split(param)[1];
+					let oldValue = this.baseUrl.split(`${key}=`)[1];
 					this.baseUrl = this.baseUrl.replace(oldValue, value);
 				}
 			}
