@@ -1,30 +1,24 @@
 <template>
 	<div
-		class="h-screen w-screen bg-gradient-to-b from-blue-600 to-indigo-900 bg-blue-600 flex flex-col items-center justify-center"
+		class="h-auto min-h-screen w-full pb-10 bg-gradient-to-b from-blue-600 to-indigo-900 bg-blue-600 flex flex-col items-center justify-center"
 	>
-		{{ baseUrl }}
-		<img :src="baseUrl" class="w-64 h-64" alt="" />
+		<welcome-modal />
+		<img :src="baseUrl" class="w-80 h-80" alt="" />
 		<div
-			class="h-56 w-1/2 rounded-md shadow-md shadow-blue-800 bg-slate-300 text-black"
+			class="h-auto w-[70%] px-3 py-2 rounded-md shadow-md shadow-blue-800 bg-slate-300 text-black"
 		>
-			<m-select
-				v-model="teste2"
-				:options="['Batman', 'Robin', 'Pinguin']"
-				class="text-black"
-			/>
-			<div
-				v-for="propertie in inputProperties"
-				:key="propertie.title"
-				class="my-2 w-full h-auto"
-			>
-				<m-select
-					@input="assignValue(propertie.title, $event)"
-					:canClear="false"
-					:canDeselect="false"
-					:options="propertie.enum || propertie.items?.enum"
-					class="text-black"
-					:placeholder="`Select a ${propertie.title.toLowerCase()}`"
-				/>
+			<div class="w-full grid grid-cols-3 gap-3">
+				<template v-for="propertie in inputProperties" :key="propertie.title">
+					<m-select
+						v-if="!propertie.title.includes('Probability')"
+						@input="assignValue(propertie.title, $event)"
+						:canClear="false"
+						:canDeselect="false"
+						:options="propertie.enum || propertie.items?.enum"
+						class="text-black m-2 w-auto"
+						:placeholder="`Select a ${propertie.title.toLowerCase()}`"
+					/>
+				</template>
 			</div>
 		</div>
 	</div>
@@ -32,11 +26,13 @@
 
 <script>
 	import MSelect from '../components/atoms/MSelect.vue';
+	import WelcomeModal from '../components/atoms/WelcomeModal.vue';
 	import { avataaars as avataaars } from '@dicebear/collection';
 
 	export default {
 		components: {
-			MSelect
+			MSelect,
+			WelcomeModal
 		},
 		data() {
 			return {
@@ -81,6 +77,7 @@
 			},
 			assignValue(key, value) {
 				console.log(value);
+				console.log(key);
 				key = this.normalizeKey(key);
 				if (!this.baseUrl.includes(key)) {
 					let position;
